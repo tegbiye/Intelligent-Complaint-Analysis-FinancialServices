@@ -3,3 +3,7 @@
 *.log
 *.tmp
 data/
+__pycache__/
+*.pyc
+*.pyo
+logs/
