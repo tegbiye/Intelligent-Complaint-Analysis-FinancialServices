@@ -23,7 +23,7 @@
 ## Project Structure
 
 <pre>
-Credit-Risk-Model-Automation/
+Intelligent-Complaint-Analysis-Financial Services/
 ├── .github/workflows/ci.yml   # For CI/CD
 ├── data/                       # add this folder to .gitignore
 │   ├── raw/                   # Raw data goes here 
@@ -47,20 +47,23 @@ Credit-Risk-Model-Automation/
 ## Getting Started
 
 Clone the repository
+
 `git clone http://github.com/tegbiye/Intelligent-Complaint-Analysis-FinancialServices.git`
 
 `cd Intelligent-Complaint-Analysis-FinancialServices`
 
 Create environment using venv
+
 `python -m venv .venv`
 
 Activate the environment
 
-`.venv\Scripts\activate`
+`.venv\Scripts\activate` (Windows)
 
-`source .venv\bin\activate`
+`source .venv\bin\activate` (Linux / Mac)
 
 Install Dependencies
+
 `pip install -r requirements.txt`
 
 📜 License This project is licensed under the MIT License. Feel free to use, modify, and distribute with proper attribution.
