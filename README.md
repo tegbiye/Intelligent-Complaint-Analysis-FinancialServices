@@ -20,6 +20,17 @@
 
 ✅ The preprocessing steps ensure that the narratives are standardized and free of noise, enhancing the performance of the chatbot in answering queries based on real-world feedback.
 
+## Task-2 Text Chunking, Embedding, and Vector Store Indexing
+
+#### Report Section: Chunking Strategy and Embedding Model Choice
+
+✅ For the text chunking strategy, I utilized LangChain's RecursiveCharacterTextSplitter with a chunk_size of 500 characters and a chunk_overlap of 50 characters.
+✅ The chunk size was chosen to balance capturing coherent segments of complaint narratives (approximately 100-150 words) while ensuring embeddings remain semantically meaningful. Complaints often contain distinct issues (e.g., billing disputes, customer service issues), and smaller chunks help isolate these for better retrieval precision.
+✅ The overlap of 50 characters maintains context across chunk boundaries, especially for narratives split mid-sentence. I experimented with larger chunk sizes (e.g., 1000 characters), but they risked diluting specific issues in longer narratives, while smaller chunks (e.g., 200 characters) fragmented context excessively. The chosen parameters were validated by inspecting sample chunks, ensuring they retained meaningful complaint details.
+
+✅ The sentence-transformers/all-MiniLM-L6-v2 model was selected for embedding due to its efficiency and performance in semantic similarity tasks. This lightweight model (22M parameters, 384-dimensional embeddings) is optimized for short text, making it ideal for complaint narratives, which are typically concise yet descriptive. It provides a good balance between embedding quality and computational efficiency, suitable for indexing large datasets like the CFPB complaints. The model’s pre-training on diverse datasets ensures robust handling of financial terminology and consumer language.
+✅ FAISS was chosen for the vector store due to its speed and scalability for similarity search, with metadata (complaint ID, product, chunk ID) stored alongside each embedding to enable traceability to the original complaint. The vector store and metadata are persisted in the vector_store/ directory for downstream retrieval tasks.
+
 ## Project Structure
 
 <pre>
@@ -28,12 +39,19 @@ Intelligent-Complaint-Analysis-Financial Services/
 ├── data/                       # add this folder to .gitignore
 │   ├── raw/                   # Raw data goes here 
 │   └── processed/             # Processed data for training
+├── vectore_store/
+|   ├── sample_chunks.csv    # Sample chunks for verification
+|   ├── metadata.pkl         # chunks metadata
+|   └── faiss_index.bin      # FAISS index
+├── models/                  # Saved embedding model
 ├── notebooks/
 |   ├── README.md
+|   ├── text_chunk.ipynb             # Text chunk, embedding notebook
 │   └── complaints-EDA.ipynb          # Exploratory, one-off analysis
 ├── src/
 │   ├── __init__.py
 │   ├── data_process.py     # Script for Data Processing (EDA)
+|   ├── text_chunker.py     # Helper function for the text chunking
 │   └── loggers.py    # logging to the files and output
 ├── tests/
 |   ├── __init__.py
