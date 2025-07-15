@@ -39,6 +39,13 @@
         - The script successfully produced the evaluation table
     2.  Evaluation Table (evaluation_table.md)
         - The table (provided in the document) contains answers and sources for five questions, with a quality score  and a comment to “Review answer and sources for accuracy and relevance.”
+
+## Task 4: Creating an Interactive Chat Interface
+The Streamlit application (app.py) provides an intuitive interface for users to interact with the RAG pipeline, enabling queries about customer complaints at CrediTrust. Built with Streamlit, it features a text input, “Submit” and “Clear” buttons, and displays AI-generated answers with source chunks for transparency. The interface integrates the Task 3 pipeline (flan-base, sentence-transformers/all-MiniLM-L6-v2, FAISS vector store) and addresses usability and trust requirements.
+
+![App Banner](images/app_interface.png)
+
+
 ## Project Structure
 
 <pre>
@@ -61,6 +68,7 @@ Intelligent-Complaint-Analysis-Financial Services/
 │   └── complaints-EDA.ipynb          # Exploratory, one-off analysis
 ├── src/
 │   ├── __init__.py
+|   ├── app.py            # Streamlit app
 |   ├── rag_helper.py     # helper script gopt the rag
 │   ├── data_process.py     # Script for Data Processing (EDA)
 |   ├── text_chunker.py     # Helper function for the text chunking
