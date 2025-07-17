@@ -25,23 +25,31 @@
 #### Report Section: Chunking Strategy and Embedding Model Choice
 
 ✅ For the text chunking strategy, I utilized LangChain's RecursiveCharacterTextSplitter with a chunk_size of 500 characters and a chunk_overlap of 50 characters.
+
 ✅ The chunk size was chosen to balance capturing coherent segments of complaint narratives (approximately 100-150 words) while ensuring embeddings remain semantically meaningful. Complaints often contain distinct issues (e.g., billing disputes, customer service issues), and smaller chunks help isolate these for better retrieval precision.
+
 ✅ The overlap of 50 characters maintains context across chunk boundaries, especially for narratives split mid-sentence. I experimented with larger chunk sizes (e.g., 1000 characters), but they risked diluting specific issues in longer narratives, while smaller chunks (e.g., 200 characters) fragmented context excessively. The chosen parameters were validated by inspecting sample chunks, ensuring they retained meaningful complaint details.
 
 ✅ The sentence-transformers/all-MiniLM-L6-v2 model was selected for embedding due to its efficiency and performance in semantic similarity tasks. This lightweight model (22M parameters, 384-dimensional embeddings) is optimized for short text, making it ideal for complaint narratives, which are typically concise yet descriptive. It provides a good balance between embedding quality and computational efficiency, suitable for indexing large datasets like the CFPB complaints. The model’s pre-training on diverse datasets ensures robust handling of financial terminology and consumer language.
+
 ✅ FAISS was chosen for the vector store due to its speed and scalability for similarity search, with metadata (complaint ID, product, chunk ID) stored alongside each embedding to enable traceability to the original complaint. The vector store and metadata are persisted in the vector_store/ directory for downstream retrieval tasks.
 
 ## Task 3: Building the RAG Core Logic and Evaluation
 
 #### Deliverables
 
-    1.	Python Module (rag_pipeline.py): 
-        - The script successfully produced the evaluation table
-    2.  Evaluation Table (evaluation_table.md)
-        - The table (provided in the document) contains answers and sources for five questions, with a quality score  and a comment to “Review answer and sources for accuracy and relevance.”
+    1. Python Module (rag_pipeline.py): 
+     - The script successfully produced the evaluation table
+    2. Evaluation Table (evaluation_table.md)
+     - The table (provided in the document) contains answers and sources for five questions, with a quality score  
+       and a comment to “Review answer and sources for accuracy and relevance.”
 
 ## Task 4: Creating an Interactive Chat Interface
-The Streamlit application (app.py) provides an intuitive interface for users to interact with the RAG pipeline, enabling queries about customer complaints at CrediTrust. Built with Streamlit, it features a text input, “Submit” and “Clear” buttons, and displays AI-generated answers with source chunks for transparency. The interface integrates the Task 3 pipeline (flan-base, sentence-transformers/all-MiniLM-L6-v2, FAISS vector store) and addresses usability and trust requirements.
+✅ The Streamlit application (app.py) provides an intuitive interface for users to interact with the RAG pipeline, enabling queries about customer complaints at CrediTrust.
+
+✅ It is Built with Streamlit, it features a text input, “Submit” and “Clear” buttons, and displays AI-generated answers with source chunks for transparency. 
+
+✅ The interface integrates the Task 3 pipeline (flan-base, sentence-transformers/all-MiniLM-L6-v2, FAISS vector store) and addresses usability and trust requirements.
 
 ![App Banner](images/app_interface.png)
 
