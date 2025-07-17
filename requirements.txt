@@ -61,7 +61,7 @@ pyparsing==3.2.3
 pytest==8.4.1
 python-dateutil==2.9.0.post0
 pytz==2025.2
-pywin32==310
+#pywin32==310 commented out this is only available on windows
 PyYAML==6.0.2
 pyzmq==27.0.0
 regex==2024.11.6
