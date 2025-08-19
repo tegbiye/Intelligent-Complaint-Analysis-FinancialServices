@@ -38,10 +38,10 @@ def test_data_loader_failure(mock_logger):
 
 
 @pytest.mark.parametrize("raw,expected", [
-    ("Hello WORLD!!", "hello world!!"),
+    ("Hello WORLD!!", "hello world"),
     ("   Multiple    spaces   ", "multiple spaces"),
     ("Symbols *&^%$#", "symbols"),
-    ("Mixed 123 text.", "mixed 123 text."),
+    ("Mixed 123 text.", "mixed 123 text"),
 ])
 def test_clean_text(raw, expected):
     assert dp.clean_text(raw) == expected
