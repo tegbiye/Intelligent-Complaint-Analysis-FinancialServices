@@ -1,6 +1,6 @@
 import pandas as pd
 import os
-from src.loggers import get_logger
+from loggers import get_logger
 import re
 import numpy as np
 
