@@ -53,7 +53,6 @@
 
 ![App Banner](images/app_interface.png)
 
-
 ## Project Structure
 
 <pre>
@@ -84,6 +83,9 @@ Intelligent-Complaint-Analysis-Financial Services/
 ├── tests/
 |   ├── __init__.py
 |   ├── test_streamlit_app.py
+|   ├── test_chunk_narratives.py
+|   ├── test_retrieval_rag.py
+|   ├── test_data_processing.py
 │   └── test_sample.py         # Unit tests
 ├── requirements.txt
 ├── .gitignore
