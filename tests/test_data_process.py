@@ -7,6 +7,12 @@ import re
 from unittest.mock import MagicMock, patch
 from io import StringIO
 
+import sys
+
+
+# Add project root to sys.path
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+
 import src.data_process as dp
 
 
@@ -38,10 +44,10 @@ def test_data_loader_failure(mock_logger):
 
 
 @pytest.mark.parametrize("raw,expected", [
-    ("Hello WORLD!!", "hello world"),
+    ("Hello WORLD!!", "hello world"),   # no !!
     ("   Multiple    spaces   ", "multiple spaces"),
     ("Symbols *&^%$#", "symbols"),
-    ("Mixed 123 text.", "mixed 123 text"),
+    ("Mixed 123 text.", "mixed 123 text"),  # no final period
 ])
 def test_clean_text(raw, expected):
     assert dp.clean_text(raw) == expected
