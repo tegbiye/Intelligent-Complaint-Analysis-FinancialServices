@@ -71,7 +71,7 @@ Intelligent-Complaint-Analysis-Financial Services/
 │   └── loggers.py    # logging to the files and output
 ├── tests/
 |   ├── __init__.py
-|   ├── test_chunk_narratives.py
+|   ├── test_text_chunker.py
 |   ├── test_retrieval_rag.py
 │   └── test_sample.py         # Unit tests
 ├── requirements.txt
