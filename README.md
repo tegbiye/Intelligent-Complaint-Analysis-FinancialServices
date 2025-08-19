@@ -45,9 +45,12 @@ Intelligent-Complaint-Analysis-Financial Services/
 ├── vectore_store/
 |   ├── sample_chunks.csv    # Sample chunks for verification
 |   ├── metadata.pkl         # chunks metadata
+|   ├── faiss_index.faiss         # chunks metadata
 |   └── faiss_index.bin      # FAISS index
 ├── models/                  # Saved embedding model
 ├── notebooks/
+|   ├── logs/
+|   |       └──  app.log     # logs
 |   ├── README.md
 |   ├── text_chunk.ipynb             # Text chunk, embedding notebook
 │   └── complaints-EDA.ipynb          # Exploratory, one-off analysis
@@ -59,6 +62,7 @@ Intelligent-Complaint-Analysis-Financial Services/
 ├── tests/
 |   ├── __init__.py
 |   ├── test_data_processing.py
+|   ├── test_text_chunker.py
 │   └── test_sample.py         # Unit tests
 ├── requirements.txt
 ├── .gitignore
