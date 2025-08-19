@@ -34,32 +34,12 @@
 
 ✅ FAISS was chosen for the vector store due to its speed and scalability for similarity search, with metadata (complaint ID, product, chunk ID) stored alongside each embedding to enable traceability to the original complaint. The vector store and metadata are persisted in the vector_store/ directory for downstream retrieval tasks.
 
-## Task 3: Building the RAG Core Logic and Evaluation
-
-#### Deliverables
-
-    1. Python Module (rag_pipeline.py): 
-     - The script successfully produced the evaluation table
-    2. Evaluation Table (evaluation_table.md)
-     - The table (provided in the document) contains answers and sources for five questions, with a quality score  
-       and a comment to “Review answer and sources for accuracy and relevance.”
-
-## Task 4: Creating an Interactive Chat Interface
-✅ The Streamlit application (app.py) provides an intuitive interface for users to interact with the RAG pipeline, enabling queries about customer complaints at CrediTrust.
-
-✅ It is Built with Streamlit, it features a text input, “Submit” and “Clear” buttons, and displays AI-generated answers with source chunks for transparency. 
-
-✅ The interface integrates the Task 3 pipeline (flan-base, sentence-transformers/all-MiniLM-L6-v2, FAISS vector store) and addresses usability and trust requirements.
-
-![App Banner](images/app_interface.png)
-
 ## Project Structure
 
 <pre>
 Intelligent-Complaint-Analysis-Financial Services/
 ├── .github/workflows/ci.yml   # For CI/CD
 ├── data/                       # add this folder to .gitignore
-|   ├── evaluation_table.md     # evaluation table generated 
 │   ├── raw/                   # Raw data goes here 
 │   └── processed/             # Processed data for training
 ├── vectore_store/
@@ -70,22 +50,13 @@ Intelligent-Complaint-Analysis-Financial Services/
 ├── models/                  # Saved embedding model
 ├── notebooks/
 |   ├── README.md
-|   ├── RAG-pipeline.ipynb           # Pipeline notebook
-|   ├── text_chunk.ipynb             # Text chunk, embedding notebook
 │   └── complaints-EDA.ipynb          # Exploratory, one-off analysis
 ├── src/
 │   ├── __init__.py
-|   ├── app.py            # Streamlit app
-|   ├── rag_helper.py     # helper script gopt the rag
 │   ├── data_process.py     # Script for Data Processing (EDA)
-|   ├── text_chunker.py     # Helper function for the text chunking
 │   └── loggers.py    # logging to the files and output
 ├── tests/
 |   ├── __init__.py
-|   ├── test_streamlit_app.py
-|   ├── test_chunk_narratives.py
-|   ├── test_retrieval_rag.py
-|   ├── test_data_processing.py
 │   └── test_sample.py         # Unit tests
 ├── requirements.txt
 ├── .gitignore
