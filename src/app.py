@@ -6,8 +6,8 @@ from faiss import IndexFlatL2
 import faiss
 import pickle
 from pathlib import Path
-#from langchain_community.llms import HuggingFacePipeline
-from langchain_huggingface import HuggingFacePipeline
+from langchain_community.llms import HuggingFacePipeline
+#from langchain_huggingface import HuggingFacePipeline
 from langchain.prompts import PromptTemplate
 from transformers import pipeline
 import torch
