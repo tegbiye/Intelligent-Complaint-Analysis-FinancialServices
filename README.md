@@ -40,8 +40,11 @@
 Intelligent-Complaint-Analysis-Financial Services/
 ├── .github/workflows/ci.yml   # For CI/CD
 ├── data/                       # add this folder to .gitignore
-│   ├── raw/                   # Raw data goes here 
+│   ├── raw/                   # Raw data goes here
+|   |       └── complaints.csv
 │   └── processed/             # Processed data for training
+|                ├── filtered_complaints.csv
+|                └── processed_complaints.csv
 ├── vectore_store/
 |   ├── sample_chunks.csv    # Sample chunks for verification
 |   ├── metadata.pkl         # chunks metadata
@@ -52,17 +55,15 @@ Intelligent-Complaint-Analysis-Financial Services/
 |   ├── logs/
 |   |       └──  app.log     # logs
 |   ├── README.md
-|   ├── text_chunk.ipynb             # Text chunk, embedding notebook
 │   └── complaints-EDA.ipynb          # Exploratory, one-off analysis
 ├── src/
 │   ├── __init__.py
 │   ├── data_process.py     # Script for Data Processing (EDA)
-|   ├── text_chunker.py     # Helper function for the text chunking
 │   └── loggers.py    # logging to the files and output
 ├── tests/
 |   ├── __init__.py
-|   ├── test_data_processing.py
 |   ├── test_text_chunker.py
+|   ├── test_data_process.py
 │   └── test_sample.py         # Unit tests
 ├── requirements.txt
 ├── .gitignore
