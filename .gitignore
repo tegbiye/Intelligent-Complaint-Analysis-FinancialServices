@@ -2,7 +2,8 @@
 *.logs
 *.log
 *.tmp
-data/
+/data/*
+!/data/evaluation_table.md
 __pycache__/
 *.pyc
 *.pyo
