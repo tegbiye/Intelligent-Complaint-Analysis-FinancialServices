@@ -40,8 +40,11 @@
 Intelligent-Complaint-Analysis-Financial Services/
 ├── .github/workflows/ci.yml   # For CI/CD
 ├── data/                       # add this folder to .gitignore
-│   ├── raw/                   # Raw data goes here 
+│   ├── raw/                   # Raw data goes here
+|   |       └── complaints.csv
 │   └── processed/             # Processed data for training
+|                ├── filtered_complaints.csv
+|                └── processed_complaints.csv
 ├── vectore_store/
 |   ├── sample_chunks.csv    # Sample chunks for verification
 |   ├── metadata.pkl         # chunks metadata
@@ -49,6 +52,8 @@ Intelligent-Complaint-Analysis-Financial Services/
 |   └── faiss_index.bin      # FAISS index
 ├── models/                  # Saved embedding model
 ├── notebooks/
+|   |── logs/
+|   |     └── app.log       # log files
 |   ├── README.md
 │   └── complaints-EDA.ipynb          # Exploratory, one-off analysis
 ├── src/
@@ -57,6 +62,7 @@ Intelligent-Complaint-Analysis-Financial Services/
 │   └── loggers.py    # logging to the files and output
 ├── tests/
 |   ├── __init__.py
+|   ├── test_data_process.py
 │   └── test_sample.py         # Unit tests
 ├── requirements.txt
 ├── .gitignore
