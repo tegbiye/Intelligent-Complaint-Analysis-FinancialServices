@@ -1,5 +1,5 @@
 import numpy as np
-from loggers import get_logger
+from src.loggers import get_logger
 
 logger = get_logger(__name__)
 
