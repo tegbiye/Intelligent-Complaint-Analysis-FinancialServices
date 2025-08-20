@@ -7,34 +7,57 @@ import faiss
 import pickle
 from pathlib import Path
 from langchain_community.llms import HuggingFacePipeline
-#from langchain_huggingface import HuggingFacePipeline
 from langchain.prompts import PromptTemplate
 from transformers import pipeline
 import torch
+import sys
+import os
+from functools import lru_cache
+import io
+
+# Add project root to sys.path
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+
 from src.loggers import get_logger
-
-
 
 # Set up logging
 logger = get_logger(__name__)
+logger.info("Starting CrediTrust Complaint Analysis Chatbot")
 
-# Set up directories
+# Constants
 VECTOR_STORE_DIR = Path('vector_store')
+EMBEDDING_MODEL_NAME = 'sentence-transformers/all-MiniLM-L6-v2'
+LLM_MODEL_NAME = 'google/flan-t5-base'
+RETRIEVAL_K = 5
+DISTANCE_THRESHOLD = 1.0  # Maximum FAISS distance for relevant chunks
+MAX_CONTEXT_LENGTH = 1000  # Maximum characters for context
 
 # Streamlit app configuration
-st.set_page_config(page_title="CrediTrust Complaint Analysis", layout="wide")
-st.title("CrediTrust Complaint Analysis Chatbot")
-st.markdown("Ask questions about customer complaints, and I'll provide answers based on our complaint database. Sources are shown for transparency.")
+st.set_page_config(page_title="CrediTrust Complaint Analysis", layout="wide", initial_sidebar_state="expanded")
 
-# Initialize session state for conversation history and input
-if 'conversation' not in st.session_state:
-    st.session_state.conversation = []
-if 'query' not in st.session_state:
-    st.session_state.query = ""
+def initialize_session_state():
+    """Initialize session state variables for conversation, query, and form."""
+    if 'conversation' not in st.session_state:
+        st.session_state.conversation = []
+    if 'query' not in st.session_state:
+        st.session_state.query = ""
+    if 'form_key' not in st.session_state:
+        st.session_state.form_key = "query_form_0"
+    if 'feedback' not in st.session_state:
+        st.session_state.feedback = {}
 
-# Load vector store and metadata
 @st.cache_resource
 def load_vector_store():
+    """
+    Load FAISS index and metadata from disk.
+
+    Returns:
+        tuple: (index, chunks, metadata) containing FAISS index, text chunks, and metadata.
+    
+    Raises:
+        FileNotFoundError: If vector store files are missing.
+        Exception: For other loading errors.
+    """
     try:
         index = faiss.read_index(str(VECTOR_STORE_DIR / 'faiss_index.faiss'))
         with open(VECTOR_STORE_DIR / 'metadata.pkl', 'rb') as f:
@@ -45,55 +68,77 @@ def load_vector_store():
         return index, chunks, metadata
     except FileNotFoundError as e:
         logger.error(f"Vector store files not found: {e}")
-        st.error("Vector store files not found. Please ensure 'vector_store/faiss_index.bin' and 'vector_store/metadata.pkl' exist.")
+        st.error("Vector store files not found. Ensure 'vector_store/faiss_index.faiss' and 'vector_store/metadata.pkl' exist.")
         raise
     except Exception as e:
         logger.error(f"Error loading vector store or metadata: {e}")
         st.error(f"Error loading vector store: {e}")
         raise
 
-# Initialize embedding model
 @st.cache_resource
 def load_embedding_model():
+    """
+    Load the sentence transformer model for embeddings.
+
+    Returns:
+        SentenceTransformer: Loaded embedding model.
+    
+    Raises:
+        Exception: If model loading fails.
+    """
     try:
-        logger.info("Loading embedding model 'sentence-transformers/all-MiniLM-L6-v2'...")
-        embedding_model = SentenceTransformer('sentence-transformers/all-MiniLM-L6-v2')
+        logger.info(f"Loading embedding model '{EMBEDDING_MODEL_NAME}'...")
+        embedding_model = SentenceTransformer(EMBEDDING_MODEL_NAME)
         if embedding_model is None:
             raise ValueError("Embedding model is None after initialization.")
         test_embedding = embedding_model.encode(["test sentence"])
-        logger.info(f"Embedding model loaded successfully. Test embedding shape: {test_embedding.shape}")
+        logger.info(f"Embedding model loaded. Test embedding shape: {test_embedding.shape}")
         return embedding_model
     except Exception as e:
         logger.error(f"Failed to load embedding model: {e}")
         st.error(f"Failed to load embedding model: {e}")
         raise
 
-# Initialize LLM
 @st.cache_resource
 def load_llm():
+    """
+    Load the language model pipeline.
+
+    Returns:
+        HuggingFacePipeline: Loaded LLM pipeline.
+    
+    Raises:
+        Exception: If LLM loading fails.
+    """
     try:
-        logger.info("Loading LLM 'flan-t5-base'...")
+        logger.info(f"Loading LLM '{LLM_MODEL_NAME}'...")
         llm_pipeline = pipeline(
             "text2text-generation",
-            model="google/flan-t5-base",
+            model=LLM_MODEL_NAME,
             device=0 if torch.cuda.is_available() else -1,
             max_length=200,
             do_sample=True,
             temperature=0.7,
         )
         test_output = llm_pipeline("Test input")[0]['generated_text']
-        logger.info(f"LLM (flan-t5-base) loaded successfully. Test output: {test_output[:50]}...")
+        logger.info(f"LLM loaded successfully. Test output: {test_output[:50]}...")
         return HuggingFacePipeline(pipeline=llm_pipeline)
     except Exception as e:
-        logger.error(f"Failed to load LLM 't5-small': {e}")
+        logger.error(f"Failed to load LLM: {e}")
         st.error(f"Failed to load LLM: {e}")
         raise
 
-# Define prompt template
-prompt_template = PromptTemplate(
-    input_variables=["context", "question"],
-    template="""
-You are a financial analyst assistant for CrediTrust. Your task is to answer questions about customer complaints based solely on the provided context. If the context doesn't contain enough information to answer the question, state clearly: "Insufficient information in the provided context to fully answer the question." Provide a concise and accurate response.
+def get_prompt_template():
+    """
+    Create and return the prompt template for the RAG pipeline.
+
+    Returns:
+        PromptTemplate: Configured prompt template.
+    """
+    return PromptTemplate(
+        input_variables=["context", "question"],
+        template="""
+You are a financial analyst assistant for CrediTrust. Provide a detailed and accurate answer to the question about customer complaints, using only the provided context. If the context is insufficient, state: "Insufficient information in the provided context to fully answer the question." Ensure the response is professional, concise, and directly addresses the question.
 
 Context: {context}
 
@@ -101,40 +146,94 @@ Question: {question}
 
 Answer:
 """
-)
+    )
 
-# Retriever function
-def retrieve_chunks(query, embedding_model, index, chunks, metadata, k=5):
+@lru_cache(maxsize=100)
+def encode_query(query: str, embedding_model):
+    """
+    Encode a query into an embedding vector with caching.
+
+    Args:
+        query (str): The query to encode.
+        embedding_model: The SentenceTransformer model.
+
+    Returns:
+        np.ndarray: The query embedding.
+
+    Raises:
+        ValueError: If query is invalid or embedding model is None.
+    """
+    if not query or not isinstance(query, str):
+        raise ValueError(f"Invalid query: {query}")
+    if embedding_model is None:
+        raise ValueError("Embedding model is None.")
+    logger.info(f"Encoding query: {query}")
+    return embedding_model.encode([query])[0]
+
+def retrieve_chunks(query, embedding_model, index, chunks, metadata, k=RETRIEVAL_K):
+    """
+    Retrieve relevant chunks from the vector store based on the query.
+
+    Args:
+        query (str): The user query.
+        embedding_model: The SentenceTransformer model.
+        index: The FAISS index.
+        chunks (list): List of text chunks.
+        metadata (list): List of metadata dictionaries.
+        k (int): Number of chunks to retrieve.
+
+    Returns:
+        list: List of dictionaries containing retrieved chunks and metadata.
+
+    Raises:
+        Exception: If retrieval fails.
+    """
     try:
-        if not query or not isinstance(query, str):
-            raise ValueError(f"Invalid query: {query}")
-        if embedding_model is None:
-            raise ValueError("Embedding model is None in retrieve_chunks.")
-        logger.info(f"Encoding query: {query}")
-        query_embedding = embedding_model.encode([query])[0]
+        query_embedding = encode_query(query, embedding_model)
         distances, indices = index.search(np.array([query_embedding]), k)
         retrieved_chunks = []
-        for idx in indices[0]:
-            if idx < len(chunks):
-                chunk_info = {
+        for idx, dist in zip(indices[0], distances[0]):
+            if idx < len(chunks) and dist < DISTANCE_THRESHOLD:
+                retrieved_chunks.append({
                     'text': chunks[idx],
-                    'metadata': metadata[idx]
-                }
-                retrieved_chunks.append(chunk_info)
+                    'metadata': metadata[idx],
+                    'distance': float(dist)
+                })
             else:
-                logger.warning(f"Invalid index {idx} retrieved, skipping.")
+                logger.warning(f"Skipping chunk {idx} with distance {dist:.4f} (threshold: {DISTANCE_THRESHOLD})")
+        if not retrieved_chunks:
+            logger.warning(f"No relevant chunks retrieved for query: {query}")
         logger.info(f"Retrieved {len(retrieved_chunks)} chunks for query: {query}")
         return retrieved_chunks
     except Exception as e:
-        logger.error(f"Error in retrieving chunks for query '{query}': {e}")
+        logger.error(f"Error retrieving chunks for query '{query}': {e}")
         raise
 
-# RAG pipeline
 def rag_pipeline(query, embedding_model, index, chunks, metadata, llm):
+    """
+    Run the Retrieval-Augmented Generation pipeline.
+
+    Args:
+        query (str): The user query.
+        embedding_model: The SentenceTransformer model.
+        index: The FAISS index.
+        chunks (list): List of text chunks.
+        metadata (list): List of metadata dictionaries.
+        llm: The language model pipeline.
+
+    Returns:
+        dict: Dictionary with answer and retrieved chunks.
+
+    Raises:
+        Exception: If the pipeline fails.
+    """
     try:
-        retrieved_chunks = retrieve_chunks(query, embedding_model, index, chunks, metadata, k=5)
+        retrieved_chunks = retrieve_chunks(query, embedding_model, index, chunks, metadata)
         context = "\n".join([chunk['text'] for chunk in retrieved_chunks])
-        prompt = prompt_template.format(context=context, question=query)
+        if len(context) > MAX_CONTEXT_LENGTH:
+            context = context[:MAX_CONTEXT_LENGTH]
+            logger.info(f"Context trimmed to {MAX_CONTEXT_LENGTH} characters")
+        prompt = get_prompt_template().format(context=context, question=query)
         response = llm(prompt)
         answer = response.strip()
         logger.info(f"Generated answer for query: {query}")
@@ -146,60 +245,164 @@ def rag_pipeline(query, embedding_model, index, chunks, metadata, llm):
         logger.error(f"Error in RAG pipeline for query '{query}': {e}")
         raise
 
-# Load resources
-try:
-    index, chunks, metadata = load_vector_store()
-    embedding_model = load_embedding_model()
-    llm = load_llm()
-except Exception as e:
-    st.error("Failed to initialize the chatbot. Please check logs and ensure all dependencies are installed.")
-    st.stop()
+def export_conversation():
+    """
+    Export conversation history to a CSV file.
 
-# Streamlit UI
-with st.form(key="query_form"):
-    query = st.text_input("Enter your question about customer complaints:", value=st.session_state.query)
-    col1, col2 = st.columns([1, 1])
-    with col1:
-        submit_button = st.form_submit_button("Submit")
-    with col2:
-        clear_button = st.form_submit_button("Clear")
+    Returns:
+        bytes: CSV file content.
+    """
+    if not st.session_state.conversation:
+        return None
+    data = [
+        {
+            "Question": entry['question'],
+            "Answer": entry['answer'],
+            "Sources": "; ".join([f"Chunk {chunk['metadata']['chunk_id']} ({chunk['metadata']['product']}): {chunk['text'][:50]}..." for chunk in entry['sources']]),
+            "Feedback": st.session_state.feedback.get(str(i), "None")
+        }
+        for i, entry in enumerate(st.session_state.conversation)
+    ]
+    df = pd.DataFrame(data)
+    buffer = io.StringIO()
+    df.to_csv(buffer, index=False)
+    return buffer.getvalue().encode('utf-8')
 
-# Handle submit
-if submit_button and query:
-    with st.spinner("Generating answer..."):
-        try:
-            result = rag_pipeline(query, embedding_model, index, chunks, metadata, llm)
-            st.session_state.conversation.append({
-                'question': query,
-                'answer': result['answer'],
-                'sources': result['retrieved_chunks']
-            })
-            st.session_state.query = ""  # Clear input after submission
-        except Exception as e:
-            st.error(f"Error processing query: {e}")
-            logger.error(f"Error processing query '{query}': {e}")
+def display_conversation_history():
+    """Display the conversation history with feedback options."""
+    if st.session_state.conversation:
+        st.markdown("### Conversation History")
+        for i, entry in enumerate(reversed(st.session_state.conversation)):
+            with st.expander(f"Q: {entry['question']}", expanded=(i == 0)):
+                st.markdown(f"**Answer**: {entry['answer']}")
+                st.markdown("**Sources**:")
+                source_data = [
+                    {
+                        "Chunk ID": chunk['metadata']['chunk_id'],
+                        "Product": chunk['metadata']['product'],
+                        "Text": chunk['text'][:100] + "..." if len(chunk['text']) > 100 else chunk['text'],
+                        "Distance": f"{chunk['distance']:.4f}"
+                    }
+                    for chunk in entry['sources']
+                ]
+                st.dataframe(pd.DataFrame(source_data), use_container_width=True)
+                st.markdown("**Feedback**:")
+                col1, col2 = st.columns(2)
+                with col1:
+                    if st.button("👍 Helpful", key=f"thumbs_up_{i}"):
+                        st.session_state.feedback[str(i)] = "Helpful"
+                        st.success("Thank you for your feedback!")
+                        st.rerun()
+                with col2:
+                    if st.button("👎 Not Helpful", key=f"thumbs_down_{i}"):
+                        st.session_state.feedback[str(i)] = "Not Helpful"
+                        st.success("Thank you for your feedback!")
+                        st.rerun()
+                if str(i) in st.session_state.feedback:
+                    st.markdown(f"**Your Feedback**: {st.session_state.feedback[str(i)]}")
+    else:
+        st.info("Ask a question to start the conversation!")
 
-# Handle clear
-if clear_button:
-    st.session_state.conversation = []
-    st.session_state.query = ""
-    st.experimental_rerun()
+def main():
+    """Main function to run the Streamlit app."""
+    # Initialize session state
+    initialize_session_state()
 
-# Display conversation history
-if st.session_state.conversation:
-    st.markdown("### Conversation History")
-    for i, entry in enumerate(reversed(st.session_state.conversation)):  # Show newest first
-        with st.expander(f"Q: {entry['question']}", expanded=(i == 0)):
-            st.markdown(f"**Answer**: {entry['answer']}")
-            st.markdown("**Sources**:")
-            source_data = [
-                {
-                    "Chunk ID": chunk['metadata']['chunk_id'],
-                    "Product": chunk['metadata']['product'],
-                    "Text": chunk['text'][:100] + "..." if len(chunk['text']) > 100 else chunk['text']
-                }
-                for chunk in entry['sources']
-            ]
-            st.table(source_data)
-else:
-    st.info("Ask a question to start the conversation!")
+    # Load resources
+    try:
+        index, chunks, metadata = load_vector_store()
+        embedding_model = load_embedding_model()
+        llm = load_llm()
+    except Exception as e:
+        st.error("Failed to initialize the chatbot. Please check logs and ensure all dependencies are installed.")
+        st.stop()
+
+    # Sidebar with Query Suggestions
+    with st.sidebar:
+        st.header("Query Suggestions")
+        suggestions = [
+            "What are common issues with credit card complaints?",
+            "How many complaints involve loan delays?",
+            "What are customer sentiments about payment disputes?",
+            "Are there trends in mortgage-related complaints?"
+        ]
+        for suggestion in suggestions:
+            if st.button(suggestion, key=f"suggestion_{suggestion}"):
+                st.session_state.query = suggestion
+                st.rerun()
+
+        st.header("Export Conversation")
+        csv_data = export_conversation()
+        if csv_data:
+            st.download_button(
+                label="Download Conversation as CSV",
+                data=csv_data,
+                file_name="conversation_history.csv",
+                mime="text/csv"
+            )
+
+    # UI Header
+    st.title("CrediTrust Complaint Analysis Chatbot")
+    st.markdown("""
+        Ask questions about customer complaints to get insights from our database. 
+        Sources are provided for transparency. Use the sidebar for query suggestions or to export your conversation history.
+    """)
+
+    # Query Input Form
+    form_key = st.session_state.form_key
+    with st.form(key=form_key):
+        query = st.text_input(
+            "Enter your question about customer complaints:",
+            value=st.session_state.query,
+            key="query_text_input",
+            placeholder="e.g., What are common issues with credit card complaints?"
+        )
+        col1, col2 = st.columns([1, 1])
+        with col1:
+            submit_button = st.form_submit_button("Submit")
+        with col2:
+            clear_button = st.form_submit_button("Clear", help="Clears the input and conversation history")
+
+    # Handle Submit
+    if submit_button and query.strip():
+        with st.spinner("Analyzing complaint data..."):
+            try:
+                result = rag_pipeline(query.strip(), embedding_model, index, chunks, metadata, llm)
+                st.session_state.conversation.append({
+                    'question': query.strip(),
+                    'answer': result['answer'],
+                    'sources': result['retrieved_chunks']
+                })
+                st.session_state.query = ""
+                st.session_state.form_key = f"query_form_{len(st.session_state.conversation)}"
+                st.success("Query processed successfully!")
+                st.rerun()
+            except Exception as e:
+                st.error(f"Error processing query: {e}")
+                logger.error(f"Error processing query '{query}': {e}")
+    elif submit_button and not query.strip():
+        st.warning("Please enter a valid question.")
+
+    # Handle Clear
+    if clear_button:
+        if st.session_state.conversation:
+            if st.checkbox("Confirm: Clear conversation and input?", key="clear_confirm"):
+                st.session_state.conversation = []
+                st.session_state.query = ""
+                st.session_state.feedback = {}
+                st.session_state.form_key = f"query_form_{len(st.session_state.conversation)}"
+                st.success("Conversation and input cleared!")
+                st.rerun()
+            else:
+                st.warning("Please confirm to clear the conversation.")
+        else:
+            st.session_state.query = ""
+            st.session_state.form_key = f"query_form_{len(st.session_state.conversation)}"
+            st.success("Input cleared!")
+            st.rerun()
+
+    # Display Conversation History
+    display_conversation_history()
+
+if __name__ == "__main__":
+    main()
