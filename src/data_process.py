@@ -6,7 +6,8 @@ import numpy as np
 
 logger = get_logger(__name__)
 
-# data_processing.py
+# data_process.py
+
 # This module provides functions to load and process data for analysis.
 
 def data_loader(file):

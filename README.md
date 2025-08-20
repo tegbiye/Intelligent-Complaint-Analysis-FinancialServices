@@ -34,24 +34,17 @@
 
 ✅ FAISS was chosen for the vector store due to its speed and scalability for similarity search, with metadata (complaint ID, product, chunk ID) stored alongside each embedding to enable traceability to the original complaint. The vector store and metadata are persisted in the vector_store/ directory for downstream retrieval tasks.
 
-## Task 3: Building the RAG Core Logic and Evaluation
-
-#### Deliverables
-
-    1. Python Module (rag_pipeline.py): 
-     - The script successfully produced the evaluation table
-    2. Evaluation Table (evaluation_table.md)
-     - The table (provided in the document) contains answers and sources for five questions, with a quality score  
-       and a comment to “Review answer and sources for accuracy and relevance.”
 ## Project Structure
 
 <pre>
 Intelligent-Complaint-Analysis-Financial Services/
 ├── .github/workflows/ci.yml   # For CI/CD
 ├── data/                       # add this folder to .gitignore
-|   ├── evaluation_table.md     # evaluation table generated 
-│   ├── raw/                   # Raw data goes here 
+│   ├── raw/                   # Raw data goes here
+|   |       └── complaints.csv
 │   └── processed/             # Processed data for training
+|                ├── filtered_complaints.csv
+|                └── processed_complaints.csv
 ├── vectore_store/
 |   ├── sample_chunks.csv    # Sample chunks for verification
 |   ├── metadata.pkl         # chunks metadata
@@ -59,15 +52,13 @@ Intelligent-Complaint-Analysis-Financial Services/
 |   └── faiss_index.bin      # FAISS index
 ├── models/                  # Saved embedding model
 ├── notebooks/
+|   |── logs/
+|   |     └── app.log       # log files
 |   ├── README.md
-|   ├── RAG-pipeline.ipynb           # Pipeline notebook
-|   ├── text_chunk.ipynb             # Text chunk, embedding notebook
 │   └── complaints-EDA.ipynb          # Exploratory, one-off analysis
 ├── src/
 │   ├── __init__.py
-|   ├── rag_helper.py     # helper script gopt the rag
 │   ├── data_process.py     # Script for Data Processing (EDA)
-|   ├── text_chunker.py     # Helper function for the text chunking
 │   └── loggers.py    # logging to the files and output
 ├── tests/
 |   ├── __init__.py
