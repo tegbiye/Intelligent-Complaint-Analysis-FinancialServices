@@ -39,6 +39,7 @@ iniconfig==2.1.0
 ipykernel==6.29.5
 ipython==9.4.0
 ipython_pygments_lexers==1.1.1
+ipywidgets==8.1.7
 jedi==0.19.2
 Jinja2==3.1.6
 joblib==1.5.1
@@ -48,10 +49,12 @@ jsonschema==4.24.0
 jsonschema-specifications==2025.4.1
 jupyter_client==8.6.3
 jupyter_core==5.8.1
+jupyterlab_widgets==3.0.15
 kiwisolver==1.4.8
 langchain==0.3.26
 langchain-community==0.3.27
 langchain-core==0.3.68
+langchain-huggingface==0.3.0
 langchain-text-splitters==0.3.8
 langsmith==0.4.4
 MarkupSafe==3.0.2
@@ -86,10 +89,11 @@ pydeck==0.9.1
 Pygments==2.19.2
 pyparsing==3.2.3
 pytest==8.4.1
+pytest-mock==3.14.1
 python-dateutil==2.9.0.post0
 python-dotenv==1.1.1
 pytz==2025.2
-#pywin32==310 commented out this is only available on windows
+pywin32==310
 PyYAML==6.0.2
 pyzmq==27.0.0
 referencing==0.36.2
@@ -127,5 +131,6 @@ tzdata==2025.2
 urllib3==2.5.0
 watchdog==6.0.0
 wcwidth==0.2.13
+widgetsnbextension==4.0.14
 yarl==1.20.1
 zstandard==0.23.0
