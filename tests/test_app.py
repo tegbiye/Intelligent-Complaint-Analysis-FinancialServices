@@ -182,7 +182,7 @@ def test_rag_pipeline_success(mock_retrieve_chunks, mock_metadata, mock_logger):
     print(f"Patching retrieve_chunks: {mock_retrieve_chunks}")  # Debug
     result = app.rag_pipeline(query, mock_embedding_model, mock_index, chunks, metadata, mock_llm)
     print(f"Result: {result}")  # Debug
-    mock_retrieve_chunks.assert_called_once_with(query, mock_embedding_model, mock_index, chunks, metadata, k=5)
+    mock_retrieve_chunks.assert_called_once_with(query, mock_embedding_model, mock_index, chunks, metadata)
     assert result['answer'] == "Common complaints include delayed payments and poor customer service."
     assert len(result['retrieved_chunks']) == 2
     assert result['retrieved_chunks'][0]['text'] == chunks[0]
@@ -200,7 +200,7 @@ def test_rag_pipeline_retrieval_failure(mock_retrieve_chunks, mock_metadata, moc
     with pytest.raises(Exception, match="Retrieval failed"):
         app.rag_pipeline(query, mock_embedding_model, mock_index, chunks, metadata, mock_llm)
     print("After rag_pipeline call in failure test")  # Debug
-    mock_retrieve_chunks.assert_called_once_with(query, mock_embedding_model, mock_index, chunks, metadata, k=5)
+    mock_retrieve_chunks.assert_called_once_with(query, mock_embedding_model, mock_index, chunks, metadata)
 
 if __name__ == "__main__":
     pytest.main()
