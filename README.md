@@ -34,6 +34,48 @@
 
 ✅ FAISS was chosen for the vector store due to its speed and scalability for similarity search, with metadata (complaint ID, product, chunk ID) stored alongside each embedding to enable traceability to the original complaint. The vector store and metadata are persisted in the vector_store/ directory for downstream retrieval tasks.
 
+## Task 3: Building the RAG Core Logic and Evaluation
+
+### Deliverables
+
+    1. Python Module (rag_pipeline.py): 
+     - The script successfully produced the evaluation table
+    2. Evaluation Table (evaluation_table.md)
+     - The table (provided in the document) contains answers and sources for five questions, with a quality score  
+       and a comment to “Review answer and sources for accuracy and relevance.”
+
+Evaluation table is follows
+
+![App Banner](images/Evaluation_table.png)
+
+## Task 4: Creating an Interactive Chat Interface
+✅ The Streamlit application (app.py) provides an intuitive interface for users to interact with the RAG pipeline, enabling queries about customer complaints at CrediTrust.
+
+✅ It is Built with Streamlit, it features a text input, “Submit” and “Clear” buttons, and displays AI-generated answers with source chunks for transparency. 
+
+✅ The interface integrates the Task 3 pipeline (flan-base, sentence-transformers/all-MiniLM-L6-v2, FAISS vector store) and addresses usability and trust requirements.
+
+#### When the streamlit app starts on cmd it looks the following.
+  
+![App Banner](images/Stream_lit_starter.png)
+
+#### Then it will open the localhost:8501 on the default browser
+
+![App Banner](images/Capstone_Project_1.png)
+
+#### When prompted with questions it looks as follows
+
+![App Banner](images/Capstone_Project.png)
+
+## DEMO for 📊 CrediTrust Complaint Analysis Chatbot
+
+### How to run the application
+    streamlit run src\app.py
+
+Then it will smoothly run as follows demo:
+
+![App Banner](images/CapstoneProject.gif)
+
 ## Project Structure
 
 <pre>
@@ -43,8 +85,9 @@ Intelligent-Complaint-Analysis-Financial Services/
 │   ├── raw/                   # Raw data goes here
 |   |       └── complaints.csv
 │   └── processed/             # Processed data for training
-|                ├── filtered_complaints.csv
-|                └── processed_complaints.csv
+├── images/        # include images of screen shot or gifs 
+├── logs/
+|      └── app.log      # log file for the system
 ├── vectore_store/
 |   ├── sample_chunks.csv    # Sample chunks for verification
 |   ├── metadata.pkl         # chunks metadata
@@ -62,9 +105,10 @@ Intelligent-Complaint-Analysis-Financial Services/
 │   └── loggers.py    # logging to the files and output
 ├── tests/
 |   ├── __init__.py
-|   ├── test_text_chunker.py
-|   ├── test_retrieval_rag.py
-|   ├── test_data_process.py
+|   ├── test_app.py     # test files for the streamlit interface
+|   ├── test_text_chunker.py # test files for text chuncker
+|   ├── test_retrieval_rag.py  # test files for the rag_pipeline
+|   ├── test_data_process.py   # test files for the data_process
 │   └── test_sample.py         # Unit tests
 ├── requirements.txt
 ├── .gitignore
