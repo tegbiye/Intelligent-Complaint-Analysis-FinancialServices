@@ -82,8 +82,8 @@ Then it will smoothly run as follows demo:
 Intelligent-Complaint-Analysis-Financial Services/
 ├── .github/workflows/ci.yml   # For CI/CD
 ├── data/                       # add this folder to .gitignore
-|   ├── evaluation_table.md     # evaluation table generated 
-│   ├── raw/                   # Raw data goes here 
+│   ├── raw/                   # Raw data goes here
+|   |       └── complaints.csv
 │   └── processed/             # Processed data for training
 ├── images/        # include images of screen shot or gifs 
 ├── logs/
@@ -95,16 +95,13 @@ Intelligent-Complaint-Analysis-Financial Services/
 |   └── faiss_index.bin      # FAISS index
 ├── models/                  # Saved embedding model
 ├── notebooks/
+|   |── logs/
+|   |     └── app.log       # log files
 |   ├── README.md
-|   ├── RAG-pipeline.ipynb           # Pipeline notebook
-|   ├── text_chunk.ipynb             # Text chunk, embedding notebook
 │   └── complaints-EDA.ipynb          # Exploratory, one-off analysis
 ├── src/
 │   ├── __init__.py
-|   ├── app.py            # Streamlit app
-|   ├── rag_helper.py     # helper script gopt the rag
 │   ├── data_process.py     # Script for Data Processing (EDA)
-|   ├── text_chunker.py     # Helper function for the text chunking
 │   └── loggers.py    # logging to the files and output
 ├── tests/
 |   ├── __init__.py
