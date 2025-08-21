@@ -23,7 +23,12 @@
 
 ✅ The exploratory data analysis of the CFPB complaint dataset reveals key insights into its structure and content.The dataset contains a diverse set of complaints across multiple financial products, with the initial analysis showing the distribution of complaints across products, highlighting which financial products (e.g., Credit card, Personal loan) receive the most complaints.
 
+![App Banner](images/Distributionofcomplaintsbyproduct.png)
+
 ✅ The narrative length analysis indicates a wide range of complaint lengths, with some narratives being very short (<10 words) and others excessively long (>500 words), suggesting variability in consumer detail.
+
+
+![App Banner](images/Distribution_complaint_narrative.png)
 
 ✅ Complaints without narratives were identified, and these were excluded from the final dataset to ensure quality for the RAG pipeline.
 
@@ -34,6 +39,7 @@
 ✅ The cleaned dataset, saved as **filtered_complaints.csv**, retains essential metadata and cleaned narratives, making it suitable for downstream tasks like embedding and retrieval.
 
 ✅ The preprocessing steps ensure that the narratives are standardized and free of noise, enhancing the performance of the chatbot in answering queries based on real-world feedback.
+
 
 ## Task-2 Text Chunking, Embedding, and Vector Store Indexing
 
