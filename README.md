@@ -91,12 +91,12 @@ Intelligent-Complaint-Analysis-Financial Services/
 ├── vectore_store/
 |   ├── sample_chunks.csv    # Sample chunks for verification
 |   ├── metadata.pkl         # chunks metadata
-|   ├── faiss_index.faiss         #  FAISS index
+|   ├── faiss_index.faiss         # chunks metadata
 |   └── faiss_index.bin      # FAISS index
 ├── models/                  # Saved embedding model
 ├── notebooks/
-|   |── logs/
-|   |     └── app.log       # log files
+|   ├── logs/
+|   |       └──  app.log     # logs
 |   ├── README.md
 │   └── complaints-EDA.ipynb          # Exploratory, one-off analysis
 ├── src/
