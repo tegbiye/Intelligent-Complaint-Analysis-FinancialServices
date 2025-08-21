@@ -1,15 +1,11 @@
 ![Header](./images/chatbot-github-banner.png)
 
-<p align="center">
-    
     [![Repo Size](https://img.shields.io/github/repo-size/tegbiye/Intelligent-Complaint-Analysis-FinancialServices)](https://github.com/tegbiye/Intelligent-Complaint-Analysis-FinancialServices)
     [![Code Size](https://img.shields.io/github/languages/code-size/tegbiye/Intelligent-Complaint-Analysis-FinancialServices)](https://github.com/tegbiye/tegbiye/Intelligent-Complaint-Analysis-FinancialServices)
     [![Top Language](https://img.shields.io/github/languages/top/tegbiye/Intelligent-Complaint-Analysis-FinancialServices)](https://github.com/tegbiye/tegbiye/Intelligent-Complaint-Analysis-FinancialServices)
     [![Language Count](https://img.shields.io/github/languages/count/tegbiye/Intelligent-Complaint-Analysis-FinancialServices)](https://github.com/tegbiye/Intelligent-Complaint-Analysis-FinancialServices)
     [![Last Commit](https://img.shields.io/github/last-commit/tegbiye/Intelligent-Complaint-Analysis-FinancialServices)](https://github.com/tegbiye/Intelligent-Complaint-Analysis-FinancialServices/commits/main)
     [![Contributors](https://img.shields.io/github/contributors/tegbiye/Intelligent-Complaint-Analysis-FinancialServices)](https://github.com/tegbiye/Intelligent-Complaint-Analysis-FinancialServices/graphs/contributors)
-
-</p>
 
 # Intelligent Complaint Analysis for Financial Services
 
