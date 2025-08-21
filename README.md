@@ -98,6 +98,8 @@ Intelligent-Complaint-Analysis-Financial Services/
 |   ├── logs/
 |   |       └──  app.log     # logs
 |   ├── README.md
+|   ├── RAG-pipeline.ipynb    # rag pipeline
+|   ├── text_chunk.ipynb     # text chunker pipeline
 │   └── complaints-EDA.ipynb          # Exploratory, one-off analysis
 ├── src/
 │   ├── __init__.py
